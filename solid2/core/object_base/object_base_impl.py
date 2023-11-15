@@ -43,6 +43,17 @@ class ObjectBase(RenderMixin):
             s += c._render()
         return s
 
+    def _repr_pretty_(self, p, cycle):
+        if cycle: #formal requirement for pretty printer
+            p.text(self.__repr__(self))          
+        from .. import config
+        if config.pretty_viewer:
+            from ...extensions.viewer import Viewer
+            viewer = Viewer(self)
+            p.breakable(viewer.__repr__())
+        else:
+            p.text(self.__repr__(self))
+
     def __call__(self, *args):
         #translate(...)(cube())
         #this adds cube() to translate._children

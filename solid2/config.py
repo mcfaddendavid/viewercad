@@ -4,6 +4,8 @@ import os
 import platform
 import sys
 import re
+import subprocess
+import platform
 
 class Config:
     def __init__(self):
@@ -13,6 +15,47 @@ class Config:
         self.pickle_cache_dir = self.get_pickle_cache_dir()
 
         self.openscad_library_paths = self.get_openscad_library_paths()
+
+        self.openscad_exec_path = self.get_openscad_exec()
+        if self.openscad_exec_path == None:
+            self.pretty_viewer = False
+        else:
+            self.pretty_viewer = True
+
+    def get_openscad_exec(self):
+        """
+        Check for openscad path and return path if successful. Else return None."""
+        try:
+            openscad_exec = os.environ["OPENSCAD_EXEC"]
+            subprocess.run([openscad_exec_path, "--version"])
+            return openscad_exec_path
+        except (KeyError, FileNotFoundError):
+            pass
+
+        try:
+            openscad_exec_path = "openscad"
+            subprocess.run([openscad_exec_path, "--version"])
+            return openscad_exec_path
+        except FileNotFoundError:
+            pass
+        
+        try:
+            openscad_exec_path = "openscad-nightly"
+            subprocess.run([openscad_exec_path, "--version"])
+            return openscad_exec_path
+        except FileNotFoundError:
+            pass
+
+        if "Windows" in platform.platform():
+            try:
+                openscad_exec_path = r"C:\Program Files\OpenSCAD\openscad.exe"
+                subprocess.run([openscad_exec_path, "--version"])
+                return openscad_exec_path
+            except FileNotFoundError:
+                pass
+
+        openscad_exec_path = None
+        return openscad_exec_path
 
     def get_openscad_library_paths(self):
         """
